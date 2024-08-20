@@ -1,6 +1,6 @@
 FROM node:16-slim
 
-# Install dependencies
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     libnss3 \
     libatk1.0-0 \
@@ -18,13 +18,17 @@ RUN apt-get update && apt-get install -y \
     libgbm1 \
     libasound2
 
-# Install Puppeteer
-RUN npm install puppeteer
-
 # Work directory
 WORKDIR /usr/src/app
 
-# Copy local files
+# Copy package.json first to cache npm install
+COPY package.json /usr/src/app/
+
+# Install npm dependencies, including Puppeteer
+RUN npm install
+
+# Copy remaining files
 COPY . .
 
-CMD ["node", "index.js"]
+# Start the application
+CMD ["npm", "start"]
